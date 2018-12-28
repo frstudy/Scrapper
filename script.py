@@ -28,8 +28,13 @@ column=['id','name','rating','address','phone','link','category','city']
 def justdial():
 	if not os.path.exists('logs'):
 		os.system('mkdir logs')
+	if not os.path.exists('./logs/links.csv'):
+		lnk=pd.DataFrame(columns=['links'])
+		lnk.to_csv('./logs/links.csv', index=None)
 	if not os.path.exists('data'):
 		os.system('mkdir data')
+	lnk=pd.read_csv('./logs/links.csv')
+	l=list(lnk['links'])
 	for city in cities:
 		df=pd.DataFrame(columns=column)
 		file_name=city+'.csv'
@@ -46,26 +51,33 @@ def justdial():
 			link=str(parent_link+'/'+category).replace(' ','%20')
 			for page in range(1,100): # Change the range for overall site
 				t_link=link+'/page-'+str(page)
-				soup, page = soup_maker(t_link)
-				if (urllib.parse.urlparse(page.geturl()).query)=='':
-					try:
-						df=extracting_info_from_soup(soup, category, city)
-						df.to_csv('./data/'+file_name, mode='a', index=None, header=None)
-						df.to_sql(name='justdial',
-							con=engine,
-							# schema='mysql',
-							if_exists='append',
-							index=False)
-						print('\033[0;32m',t_link,' Done!\033[0;37m')
-					except Exception as e:
-						with open(('./logs/'+log_file), 'a') as log:
-							log.append(str(time.time)+" Error occurred in {}".format(t_link))
-						print('\033[0;37mError in link: \033[1;30;41m',t_link,'\033[0;37m', e)
+				if t_link not in l:
+					# print(l)
+					soup, page = soup_maker(t_link)
+					if (urllib.parse.urlparse(page.geturl()).query)=='':
+						try:
+							df=extracting_info_from_soup(soup, category, city)
+							df.to_csv('./data/'+file_name, mode='a', index=None, header=None)
+							df.to_sql(name='justdial',
+								con=engine,
+								# schema='mysql',
+								if_exists='append',
+								index=False)
+							print('\033[0;32m',t_link,' Done!\033[0;37m')
+							t_lnk=pd.DataFrame([t_link],columns=['links'])
+							t_lnk.to_csv('./logs/links.csv', index=None, mode='a', header=None)
+						except Exception as e:
+							with open(('./logs/'+log_file), 'a') as log:
+								log.write(str(time.time)+" Error occurred in {}".format(t_link))
+							print('\033[0;37mError in link: \033[1;30;41m',t_link,'\033[0;37m', e)
+					else:
+						# with open('categ.json', 'w') as outfile:
+						#     json.dump(categories[1:], outfile)
+						print('Breaks here')
+						break
 				else:
-					# with open('categ.json', 'w') as outfile:
-					#     json.dump(categories[1:], outfile)
-					print('Breaks here')
-					break
+					print('{} already completed!'.format(t_link))
+
 
 
 if __name__ == '__main__':
