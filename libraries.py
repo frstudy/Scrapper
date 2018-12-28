@@ -4,6 +4,7 @@ import urllib.request
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
+import json
 
 column=['id','name','rating','address','phone','link','category','city']
 
@@ -51,7 +52,7 @@ def extracting_info_from_soup(soup, category='', city=''):
 	hashes=[]
 	for i in soup.findAll('li',{'class':'cntanr'}):
 		try:
-			hashes.append(str(hash(i['data-href']+category)))
+			hashes.append(int(hash(i['data-href']+category)))
 			rest_name.append(i.find('span',{'class':'lng_cont_name'}).text) # Restau name
 			rest_rating.append(i.find('span',{'class':'exrt_count'}).text) # Rating
 			rest_add.append(i.find('span',{'class':'cont_fl_addr'}).text) # Restaurant Address
