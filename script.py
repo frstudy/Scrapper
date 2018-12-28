@@ -51,7 +51,7 @@ def justdial():
 					try:
 						df=extracting_info_from_soup(soup, category, city)
 						df.to_csv('./data/'+file_name, mode='a', index=None, header=None)
-						df.to_sql(name='JustDial',
+						df.to_sql(name='justdial',
 							con=engine,
 							# schema='mysql',
 							if_exists='append',
