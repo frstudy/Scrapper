@@ -1,5 +1,6 @@
 CREATE DATABASE justdial;
-CREATE TABLE JustDial(
+USE justdial;
+CREATE TABLE justdial(
 	id bigint,
 	name varchar(100),
 	rating varchar(5),
