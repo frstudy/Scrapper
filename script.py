@@ -1,6 +1,7 @@
 import os
 import time
-
+import json
+import platform
 try:
 	import configration as cfg 
 except:
@@ -19,10 +20,8 @@ cities=cfg.cities
 engine = create_engine('mysql+pymysql://'+cfg.mysql['user']+':'+cfg.mysql['password']+'@'+cfg.mysql['host']+'/'+cfg.mysql['db'],
 					 echo=False
 					 )
-
 categories=libraries.categories
 category_links=[]
-
 column=['id','name','rating','address','phone','link','category','city']
 
 
@@ -35,8 +34,12 @@ def justdial():
 		df=pd.DataFrame(columns=column)
 		file_name=city+'.csv'
 		log_file=city+str(time.time())+'.txt'
-		if os.path.exists('./data/'+file_name):
-			os.system('mv ./data/'+file_name+' ./data/'+file_name.split('.')[0]+'_'+str(int(time.time()))+'_old.csv')
+		if not os.path.exists('./data/'+file_name):
+			# df.to_csv('./data/'+file_name, index=None)
+			if 'linux' in platform.platform().lower():
+				os.system('cp ./data/'+file_name+' ./data/'+file_name.split('.')[0]+'_'+str(int(time.time()))+'_old.csv')
+			else:
+				os.system('copy ./data/'+file_name+' ./data/'+file_name.split('.')[0]+'_'+str(int(time.time()))+'_old.csv')
 		df.to_csv('./data/'+file_name,index=None)
 		parent_link='https://www.justdial.com/'+city
 		for category in categories:
@@ -55,10 +58,12 @@ def justdial():
 							index=False)
 						print('\033[0;32m',t_link,' Done!\033[0;37m')
 					except Exception as e:
-						with open(log_file, 'a') as log:
+						with open(('./logs/'+log_file), 'a') as log:
 							log.append(str(time.time)+" Error occurred in {}".format(t_link))
 						print('\033[0;37mError in link: \033[1;30;41m',t_link,'\033[0;37m', e)
 				else:
+					# with open('categ.json', 'w') as outfile:
+					#     json.dump(categories[1:], outfile)
 					print('Breaks here')
 					break
 
