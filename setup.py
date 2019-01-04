@@ -17,7 +17,7 @@ if user_name=='':
 else:
 	a+="'user': '"+user_name+"', "
 if user_psd=='':
-	a+="'password': 'root',"
+	a+="'password': '',"
 else:
  	a+="'password': '"+user_psd+"', "
 a+=" 'db': 'justdial','table': 'JustDial'}"
