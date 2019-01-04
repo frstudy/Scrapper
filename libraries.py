@@ -5,6 +5,7 @@ import pandas as pd
 import pymysql
 from sqlalchemy import create_engine
 import json
+import re
 
 column=['id','name','rating','address','phone','link','category','city']
 
@@ -50,18 +51,16 @@ def extracting_info_from_soup(soup, category='', city=''):
 	rest_number=[] 
 	rest_link =[]
 	hashes=[]
+	# phone_number=[]
 	for i in soup.findAll('li',{'class':'cntanr'}):
 		try:
 			hashes.append(int(hash(i['data-href']+category)))
 			rest_name.append(i.find('span',{'class':'lng_cont_name'}).text) # Restau name
 			rest_rating.append(i.find('span',{'class':'exrt_count'}).text) # Rating
 			rest_add.append(i.find('span',{'class':'cont_fl_addr'}).text) # Restaurant Address
-			number=''
-			for char_k in i.find('p',{'class':'contact-info '}).findAll('span',{'class':'mobilesv'}):
-				number=number+convert_to_text(char_k['class'][1])
-			number=number.split(')')[-1]
-			rest_number.append(number)
 			rest_link.append(i['data-href'])
+			print(i['data-href'])
+			rest_number.append(extracting_numbers_from_soup(i['data-href']))
 		except Exception as e:
 			print('\033[0;31mElement Exception',e,'\033[0;37m')
 	df[column[0]]=hashes
@@ -72,12 +71,28 @@ def extracting_info_from_soup(soup, category='', city=''):
 	df[column[5]]=rest_link
 	df[column[6]]=category
 	df[column[7]]=city
-	# print(df)
 	return df
+
+
+def extracting_numbers_from_soup(link):
+	sp, pg=soup_maker(link)
+	cipherKey = str(sp.select('style[type="text/css"]')[1])
+	keys = re.findall('-(\w+):before', cipherKey, flags=0)
+	values = [int(item)-1 for item in re.findall('9d0(\d+)', cipherKey, flags=0)]
+	cipherDict = dict(zip(keys,values))
+	cipherDict[list(cipherDict.keys())[list(cipherDict.values()).index(10)]] = '+'
+	k=sp.find('ul',{'class':'comp-contact'})
+	telephoneNumber=''
+	for tel in k.findAll('a',{'class':'tel'}):
+		ddE = [item['class'][1].replace('icon-','') for item in tel.select('span[class*="icon"]')]
+		telephoneNumber+=''.join([str(cipherDict.get(i)) for i in ddE])
+		telephoneNumber+=' '
+	return telephoneNumber
+
 
 categories=[
 	'Doctors',
-	'Chemists',
+	'Chemists',	
 	'Grocery',
 	'Books ',
 	'Repairs',
@@ -149,3 +164,15 @@ categories=[
 	'Wedding ', 
 	'Yoga Classes'
 	]
+
+
+if __name__ == '__main__':
+	# print(
+	# extracting_info_from_soup(soup_maker('https://www.justdial.com/Mumbai/Hospital')[0],
+	# 	'hopital', 'Mumbai')
+	# )
+
+	print(
+		extracting_numbers_from_soup('\
+		https://www.justdial.com/Mumbai/Gagal-Home-Apartment-Hotel-Near-Brijwasi-Sweet-Kandivali-East/022PXX22-XX22-120120145920-P5T7_BZDET?xid=TXVtYmFpIEhvdGVscw==\
+		'))
