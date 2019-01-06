@@ -17,7 +17,7 @@ except:
 	os.system('pip install -r requirements.txt')
 # Configrations for the script
 cities=cfg.cities
-engine = create_engine('mysql+pymysql://'+cfg.mysql['user']+':'+cfg.mysql['password']+'@'+cfg.mysql['host']+'/'+cfg.mysql['db'],
+engine = create_engine('mysql+pymysql://'+cfg.mysql['user']+':'+cfg.mysql['password']+'@'+cfg.mysql['host']+'[:'+cfg.mysql['port']+']/'+cfg.mysql['db'],
 					 echo=False
 					 )
 categories=libraries.categories
