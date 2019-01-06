@@ -10,17 +10,27 @@ except:
 
 user_name=input('Please enter your MySql username: ')
 user_psd=input('Please enter your MySql password: ')
+user_host=input('Please enter your MySql host ip: ')
+user_port=input('Please enter your MySql port: ')
 
-a="mysql = {'host': 'localhost:3306',"
+a="mysql = {"
+if user_host=='':
+	a+="'host': 'localhost', "
+else:
+	a+="'host': '"+user_host+"', "
+if user_port=='':
+	a+="'port': '3306', "
+else:
+	a+="'port': '"+user_port+"', "
 if user_name=='':
-	 a+="'user': 'root',"
+	 a+="'user': 'root', "
 else:
 	a+="'user': '"+user_name+"', "
 if user_psd=='':
-	a+="'password': '',"
+	a+="'password': '', "
 else:
  	a+="'password': '"+user_psd+"', "
-a+=" 'db': 'justdial','table': 'JustDial'}"
+a+=" 'db': 'sis','table': 'justdial'}"
 
 b="""
 cities=[
@@ -37,7 +47,7 @@ with open('configration.py','a') as f:
 time.sleep(0.5)
 
 try:
-	os.system('mysql -u'+user_name+' -p'+user_psd+'< creation.sql')
+	os.system('mysql -u'+user_name+' -h'+user_host+' -P'+user_port+' -p'+user_psd+'< creation.sql')
 	print('''
 		All done! You may now use the packages.
 		''')
