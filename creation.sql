@@ -1,5 +1,5 @@
-CREATE DATABASE justdial;
-USE justdial;
+-- CREATE DATABASE sis;
+USE sis;
 CREATE TABLE justdial(
 	id bigint,
 	name varchar(100),
